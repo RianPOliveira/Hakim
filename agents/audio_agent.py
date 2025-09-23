@@ -53,9 +53,6 @@ class AudioAnalysisAgent:
         self.chain = LLMChain(llm=self.llm, prompt=self.prompt_template)
     
     def _extract_audio_info(self, audio_path: str) -> Dict[str, Any]:
-        """
-        Extrai informações técnicas do arquivo de áudio
-        """
         try:
             audio = AudioSegment.from_file(audio_path)
             return {
@@ -69,11 +66,7 @@ class AudioAnalysisAgent:
             return {"erro": f"Erro ao extrair informações: {str(e)}"}
     
     def _transcribe_audio(self, audio_path: str) -> str:
-        """
-        Transcreve o áudio para texto usando o Whisper
-        """
         try:
-            # O modelo 'base' é um bom equilíbrio entre velocidade e precisão
             model = whisper.load_model("base")
             result = model.transcribe(audio_path, language="pt")
             
@@ -88,9 +81,6 @@ class AudioAnalysisAgent:
             return f"[Erro na transcrição com Whisper: {str(e)}]"
     
     def analyze(self, audio_path: str, criteria: str = "Avaliação geral de qualidade de áudio") -> Dict[str, Any]:
-        """
-        Analisa um arquivo de áudio
-        """
         try:
             audio_info = self._extract_audio_info(audio_path)
             transcription = self._transcribe_audio(audio_path)

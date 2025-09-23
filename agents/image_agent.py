@@ -12,32 +12,20 @@ class ImageAnalysisAgent:
         self.model = genai.GenerativeModel('gemini-1.5-pro')
     
     def _encode_image(self, image_path: str) -> str:
-        """
-        Codifica uma imagem em base64
-        """
         with open(image_path, "rb") as image_file:
             return base64.b64encode(image_file.read()).decode('utf-8')
     
     def _prepare_image(self, image_input) -> Image.Image:
-        """
-        Prepara a imagem para análise
-        """
         if isinstance(image_input, str):
-            # Se for um caminho de arquivo
             return Image.open(image_input)
         elif isinstance(image_input, bytes):
-            # Se for bytes
             return Image.open(BytesIO(image_input))
         elif isinstance(image_input, Image.Image):
-            # Se já for uma imagem PIL
             return image_input
         else:
             raise ValueError("Formato de imagem não suportado")
     
     def analyze(self, image_input, criteria: str = "Avaliação geral de qualidade visual") -> Dict[str, Any]:
-        """
-        Analisa uma imagem usando o Gemini Pro Vision
-        """
         try:
             image = self._prepare_image(image_input)
             
@@ -67,8 +55,6 @@ class ImageAnalysisAgent:
             
             response = self.model.generate_content([prompt, image])
             result = response.text
-            
-            # Tenta extrair JSON da resposta
             try:
                 start_idx = result.find('{')
                 end_idx = result.rfind('}') + 1
@@ -114,9 +100,6 @@ class ImageAnalysisAgent:
             }
     
     def compare_images(self, images: list, criteria: str = "Comparação visual") -> list:
-        """
-        Compara múltiplas imagens
-        """
         results = []
         for i, image in enumerate(images):
             result = self.analyze(image, f"{criteria} - Imagem {i+1}")
@@ -126,9 +109,6 @@ class ImageAnalysisAgent:
         return results
     
     def analyze_composition(self, image_input) -> Dict[str, Any]:
-        """
-        Análise específica de composição fotográfica
-        """
         criteria = """
         Análise específica de composição fotográfica considerando:
         - Regra dos terços

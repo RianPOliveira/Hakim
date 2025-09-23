@@ -99,7 +99,6 @@ class TextAnalysisAgent:
             if not extracted_text.strip():
                 return {"erro": "Nenhum texto pôde ser extraído do documento."}
             
-            # Reutiliza o método de análise principal
             return self.analyze(extracted_text, criteria)
 
         except Exception as e:

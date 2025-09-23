@@ -33,9 +33,6 @@ class JudgeOrchestrator:
         )
         
         self.synthesis_chain = LLMChain(llm=self.llm, prompt=self.synthesis_template)
-    
-    # ... (O RESTO DO ARQUIVO CONTINUA EXATAMENTE IGUAL)
-    # (nenhuma outra mudança é necessária neste arquivo)
 
     def detect_content_type(self, file_path: str) -> str:
         extension = file_path.lower().split('.')[-1]

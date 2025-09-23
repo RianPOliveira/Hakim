@@ -1,5 +1,5 @@
 import os
-import cv2  # Usado no lugar do moviepy
+import cv2  
 from PIL import Image
 import google.generativeai as genai
 from langchain_google_genai import ChatGoogleGenerativeAI

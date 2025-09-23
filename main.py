@@ -7,10 +7,10 @@ import tempfile
 import shutil
 from dotenv import load_dotenv
 
-# Carrega variáveis de ambiente
+
 load_dotenv()
 
-# Import dos agentes
+
 from agents.judge_orchestrator import JudgeOrchestrator
 
 app = FastAPI(
@@ -19,7 +19,7 @@ app = FastAPI(
     version="1.0.0"
 )
 
-# Configuração CORS
+
 app.add_middleware(
     CORSMiddleware,
     # Adicione aqui os endereços do seu front-end
@@ -29,10 +29,10 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Inicializa o orquestrador
+
 judge = JudgeOrchestrator()
 
-# --- Modelos Pydantic ---
+
 class TextAnalysisRequest(BaseModel):
     text: str
     criteria: str = "Avaliação geral de qualidade"
@@ -42,11 +42,9 @@ class AnalysisResponse(BaseModel):
     data: Optional[Dict[str, Any]] = None
     error: Optional[str] = None
 
-# --- Rotas da API ---
 
 @app.get("/")
 async def root():
-    """Endpoint de status da API"""
     return {
         "message": "Jurado IA - Sistema de Avaliação Inteligente",
         "status": "Online",
@@ -55,12 +53,10 @@ async def root():
 
 @app.get("/status", response_model=Dict[str, Any])
 async def get_status():
-    """Retorna o status de todos os agentes"""
     return judge.get_agent_status()
 
 @app.post("/analyze/text", response_model=AnalysisResponse)
 async def analyze_text(request: TextAnalysisRequest):
-    """Analisa um texto usando o agente especializado"""
     try:
         result = await judge.analyze_single_content(
             request.text, 
