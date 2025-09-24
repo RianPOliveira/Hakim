@@ -1,7 +1,6 @@
 import os
 from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain.prompts import PromptTemplate
-from langchain.chains import LLMChain
 from typing import Dict, Any
 import json
 import PyPDF2
@@ -19,22 +18,11 @@ class TextAnalysisAgent:
             input_variables=["text", "criteria"],
             template="""
             Você é um jurado especialista em análise textual. Analise o seguinte texto com base nos critérios fornecidos:
-            
-            TEXTO PARA ANÁLISE:
-            {text}
-            
-            CRITÉRIOS DE AVALIAÇÃO:
-            {criteria}
-            
-            Por favor, forneça uma análise detalhada considerando:
-            1. Qualidade do conteúdo
-            2. Clareza e coerência
-            3. Criatividade e originalidade
-            4. Adequação aos critérios
-            5. Aspectos técnicos (gramática, ortografia)
-            
-            Retorne sua análise em formato JSON com:
-            - pontuacao: (0-100)
+            TEXTO PARA ANÁLISE: {text}
+            CRITÉRIOS DE AVALIAÇÃO: {criteria}
+            Por favor, forneça uma análise detalhada retornando um JSON com:
+            - pontuacao: (A nota numérica que você deu)
+            - pontuacao_maxima: (O valor máximo da escala que você utilizou. Se os critérios pediram uma escala de 0-25, este valor deve ser 25. Se não, o padrão é 100.)
             - feedback: análise detalhada
             - pontos_fortes: lista de pontos positivos
             - pontos_melhoria: lista de sugestões de melhoria
@@ -47,8 +35,6 @@ class TextAnalysisAgent:
     def analyze(self, text: str, criteria: str = "Avaliação geral de qualidade") -> Dict[str, Any]:
         try:
             result = self.chain.invoke({"text": text, "criteria": criteria})
-            
-            # O resultado de .invoke é um objeto, acessamos o conteúdo
             content = result.content if hasattr(result, 'content') else str(result)
             
             try:
@@ -59,15 +45,9 @@ class TextAnalysisAgent:
                     json_content = content[start_idx:end_idx]
                     analysis = json.loads(json_content)
                 else:
-                    analysis = {
-                        "pontuacao": 75, "feedback": content, "pontos_fortes": ["Análise realizada"],
-                        "pontos_melhoria": ["Verificar estrutura da resposta"], "veredicto": "Análise concluída"
-                    }
+                    analysis = {"pontuacao": 0, "feedback": content, "pontos_fortes": [], "pontos_melhoria": [], "veredicto": "Não foi possível extrair o JSON."}
             except json.JSONDecodeError:
-                analysis = {
-                    "pontuacao": 70, "feedback": content, "pontos_fortes": ["Conteúdo analisado"],
-                    "pontos_melhoria": ["Melhorar formatação"], "veredicto": "Análise realizada com formatação alternativa"
-                }
+                analysis = {"pontuacao": 0, "feedback": content, "pontos_fortes": [], "pontos_melhoria": [], "veredicto": "Erro ao decodificar o JSON."}
             
             analysis["tipo"] = "texto"
             analysis["agente"] = "TextAnalysisAgent"
@@ -75,15 +55,9 @@ class TextAnalysisAgent:
             return analysis
             
         except Exception as e:
-            return {
-                "erro": str(e), "pontuacao": 0, "feedback": f"Erro na análise: {str(e)}",
-                "tipo": "texto", "agente": "TextAnalysisAgent"
-            }
+            return {"erro": str(e), "pontuacao": 0, "feedback": f"Erro na análise: {str(e)}", "tipo": "texto", "agente": "TextAnalysisAgent"}
 
     def analyze_document(self, file_path: str, criteria: str) -> Dict[str, Any]:
-        """
-        Extrai texto de um arquivo (PDF) e o analisa.
-        """
         try:
             _, extension = os.path.splitext(file_path)
             
@@ -91,8 +65,10 @@ class TextAnalysisAgent:
             if extension.lower() == '.pdf':
                 with open(file_path, 'rb') as f:
                     reader = PyPDF2.PdfReader(f)
+                    if reader.is_encrypted:
+                        return {"erro": "O arquivo PDF está criptografado e não pode ser lido."}
                     for page in reader.pages:
-                        extracted_text += page.extract_text()
+                        extracted_text += page.extract_text() or ""
             else:
                 return {"erro": f"Tipo de documento '{extension}' não suportado."}
 
