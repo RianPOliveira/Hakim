@@ -73,7 +73,7 @@ function SingleAnalysis() {
     else if (fileType.startsWith('video/')) { endpoint = '/analyze/video'; }
     else if (fileType === 'application/pdf') { endpoint = '/analyze/document'; }
     else { setError(`Tipo de arquivo "${fileType}" não suportado.`); setIsLoading(false); return; }
-    const backendUrl = `http://localhost:8000${endpoint}`;
+    const backendUrl = `${import.meta.env.VITE_API_URL}${endpoint}`;
     try {
       const response = await axios.post(backendUrl, formData);
       if (response.data.success) { setResult(response.data.data); }
@@ -122,7 +122,7 @@ function CompetitionAnalysis() {
     const formData = new FormData();
     files.forEach(file => { formData.append('files', file); });
     formData.append('criteria', criteria || 'Avaliação comparativa de qualidade');
-    const backendUrl = `http://localhost:8000/analyze/multiple`;
+    const backendUrl = `${import.meta.env.VITE_API_URL}/analyze/multiple`;
     try {
       const response = await axios.post(backendUrl, formData);
       if (response.data.success) {
