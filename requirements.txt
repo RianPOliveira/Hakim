@@ -1,6 +1,6 @@
 # Framework e Servidor
+gunicorn
 fastapi
-uvicorn[standard]
 python-multipart
 
 # LangChain e Google AI
