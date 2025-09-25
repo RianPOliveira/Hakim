@@ -1,3 +1,7 @@
+# --- Otimização para PyTorch (usado pelo Whisper) ---
+# Força a instalação da versão de CPU, que é muito mais leve
+--extra-index-url https://download.pytorch.org/whl/cpu
+
 # Framework e Servidor
 gunicorn
 fastapi
@@ -19,7 +23,7 @@ PyPDF2
 # Processamento de Mídia
 pillow
 openai-whisper
-opencv-python
+opencv-python-headless  # <--- OTIMIZADO: Versão sem interface gráfica
 numpy
 pydub
 
