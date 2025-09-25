@@ -1,5 +1,5 @@
 # Framework e Servidor
-gunicorn
+uvicorn[standard]
 fastapi
 python-multipart
 
